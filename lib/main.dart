@@ -27,8 +27,11 @@ class MyApp extends StatelessWidget {
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
   // ↓ Add this.
+  // 1- Les paraules es guarden a la llista.
+  var paraulesGenerades = <WordPair>[];
   void getNext() {
     current = WordPair.random();
+    paraulesGenerades.add(current);
     notifyListeners();
   }
 }
