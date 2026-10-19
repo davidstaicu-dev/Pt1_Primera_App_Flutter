@@ -53,6 +53,12 @@ class MyAppState extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  // 4- Funció per eliminar una paraula de la llista de favorites.
+  void removeFavorite(WordPair pair) {
+    favorites.remove(pair);
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -165,7 +171,8 @@ class GeneratorPage extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           mainAxisSize: MainAxisSize.min,
-                          children: [ // 3- Icona de favorita dins de l'històric
+                          children: [
+                            // 3- Icona de favorita dins de l'històric
                             Icon(
                               appState.favorites.contains(paraula)
                                   ? Icons.favorite
@@ -261,7 +268,9 @@ class FavoritesPage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
 
     if (appState.favorites.isEmpty) {
-      return Center(child: Text('No favorites yet.'));
+      return Center(
+        child: Text('No favorites yet.'),
+      );
     }
 
     return ListView(
@@ -273,9 +282,17 @@ class FavoritesPage extends StatelessWidget {
             '${appState.favorites.length} favorites:',
           ),
         ),
+
+        // 4- Afegir la funcionalitat per eliminar una paraula de la llista de favorites.
         for (var pair in appState.favorites)
           ListTile(
-            leading: Icon(Icons.favorite),
+            leading: IconButton(
+              tooltip: 'Remove from favorites',
+              icon: Icon(Icons.favorite),
+              onPressed: () {
+                appState.removeFavorite(pair);
+              },
+            ),
             title: Text(pair.asLowerCase),
           ),
       ],
