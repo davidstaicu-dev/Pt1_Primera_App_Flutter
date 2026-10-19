@@ -16,7 +16,9 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Namer App',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 26, 109, 63),
+          ),
         ),
         home: MyHomePage(),
       ),
@@ -62,58 +64,57 @@ class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
-
     Widget page;
     switch (selectedIndex) {
       case 0:
         page = GeneratorPage();
-        break;
       case 1:
         page = FavoritesPage();
-        break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
 
-    return LayoutBuilder(builder: (context, constraints) {
-    return Scaffold(
-      body: Row(
-        children: [
-          SafeArea(
-            child: NavigationRail(
-              extended: constraints.maxWidth >= 600,  // ← Here.
-                destinations: [
-                  NavigationRailDestination(
-                    icon: Icon(Icons.home),
-                    label: Text('Home'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.favorite),
-                    label: Text('Favorites'),
-                  ),
-                ],
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (value) {
-                setState(() {
-                  selectedIndex = value;
-                });
-              },
-            ),
-          ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Scaffold(
+          body: Row(
+            children: [
+              SafeArea(
+                child: NavigationRail(
+                  extended: constraints.maxWidth >= 600, // ← Here.
+                  destinations: [
+                    NavigationRailDestination(
+                      icon: Icon(Icons.home),
+                      label: Text('Home'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.favorite),
+                      label: Text('Favorites'),
+                    ),
+                  ],
+                  selectedIndex: selectedIndex,
+                  onDestinationSelected: (value) {
+                    setState(() {
+                      selectedIndex = value;
+                    });
+                  },
+                ),
+              ),
 
-          Expanded(
-            child: Container(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: page,
-            ),
+              Expanded(
+                child: Container(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  child: page,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
-  );
-  }
 }
+
 class GeneratorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -136,20 +137,14 @@ class GeneratorPage extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            // Paraula actual
-            BigCard(pair: pair),
-
             SizedBox(height: 20),
-
             // Històric
             Text(
               'Històric paraules:',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-
-            SizedBox(height: 10),
 
             Container(
               height: 200,
@@ -163,15 +158,37 @@ class GeneratorPage extends StatelessWidget {
                 child: Column(
                   children: [
                     // L'última paraula generada apareix primer
+                    // L'última paraula generada apareix primer
                     for (var paraula in paraulesHistoriques.reversed)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Text(paraula.asLowerCase),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [ // 3- Icona de favorita dins de l'històric
+                            Icon(
+                              appState.favorites.contains(paraula)
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: appState.favorites.contains(paraula)
+                                  ? Colors.red
+                                  : Colors.grey,
+                              size: 20,
+                            ),
+                            SizedBox(width: 5),
+                            Text(paraula.asLowerCase),
+                          ],
+                        ),
                       ),
                   ],
                 ),
               ),
             ),
+            // Paraula actual
+            SizedBox(height: 50),
+            BigCard(pair: pair),
+
+            SizedBox(height: 20),
 
             SizedBox(height: 20),
 
@@ -244,17 +261,17 @@ class FavoritesPage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
 
     if (appState.favorites.isEmpty) {
-      return Center(
-        child: Text('No favorites yet.'),
-      );
+      return Center(child: Text('No favorites yet.'));
     }
 
     return ListView(
       children: [
         Padding(
           padding: const EdgeInsets.all(20),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:'),
+          child: Text(
+            'You have '
+            '${appState.favorites.length} favorites:',
+          ),
         ),
         for (var pair in appState.favorites)
           ListTile(
@@ -265,6 +282,5 @@ class FavoritesPage extends StatelessWidget {
     );
   }
 }
-
 
 // ...
